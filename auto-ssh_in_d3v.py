@@ -16,7 +16,7 @@ USERNAME = "tux"
 
 #checks if the symbot is under coverage
 def is_connected(ip):
-    command = ['ping', '-n -w 250', '1', ip]
+    command = ['ping', '-n', '1','-w','200', ip]
     return subprocess.call(command) == 0
 
 #stores the output in a file
@@ -35,7 +35,7 @@ def main(ip, passW):
     print("started at:" + str(time))
 
     #name for the output files
-    name = str(time.strftime("%Y%m%d%H%M%S")) + ip.replace(".","-")
+    name = str(time.strftime("%Y%m%d%H%M%S")) +'_' + ip.replace(".","-")
 
     paramiko.util.log_to_file(name + ".log")
     ssh = SSHClient()
