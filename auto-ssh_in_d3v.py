@@ -54,6 +54,14 @@ def promote_to_su(ssh, passW):
     time.sleep(0.1)
     stdin.write(passW + '\n')
 
+#transfers files from server to target ip via sftp
+def file_transfer():
+    promote_to_su(ssh, passW)
+    ftp_client=ssh.open_sftp()
+    for file in args.f:
+        ftp_client.put(‘’,remotefilepath’)
+    ftp_client.close()
+
 def main(ip, passW):
     done = False
     command_line_number = 0
@@ -77,9 +85,19 @@ def main(ip, passW):
             try:
                 ssh.connect(ip, PORT, USERNAME, passW)
             #elevate user to admin status if checked
+<<<<<<< HEAD
                 if args.s:
                     print("promoted to su")
                     promote_to_su(ssh, passW)
+=======
+            if args.s:
+                print("promoted to su")
+                promote_to_su(ssh, passW)
+
+            if args.f:
+                print("attempting to transfer files: " + args.f)
+                file_transfer()
+>>>>>>> c351454b1571e904920a46915de1cf9a58267564
             #open the files with the commands in it
                 commands = open("./commands.txt", "r")
             #run each command then put the output into a txt file
