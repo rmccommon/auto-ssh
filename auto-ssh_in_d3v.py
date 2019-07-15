@@ -8,11 +8,12 @@ import paramiko
 import datetime
 import getpass
 import subprocess
+import sys
 from paramiko.client import SSHClient
 
 
-PORT = 40022
-USERNAME = "tux"
+PORT = 22
+USERNAME = "rmccommon"
 
 #checks if the symbot is under coverage
 def is_connected(ip):
@@ -56,9 +57,11 @@ def main(ip, passW):
             #run each command then put the output into a txt file
             for line in commands:
                 stdin, stdout, stderr = ssh.exec_command(line)
-                #store the output in a file
+
+                #convert each string to utf-8 or else an error will happen
                 newout = list(map(lambda x : x.encode('utf-8').strip(), stdout.readlines()))
 
+                #store the output in a file
                 store_to_file(name, newout)
 
             #close the connection
@@ -71,6 +74,6 @@ def main(ip, passW):
             break
 
 if __name__ == "__main__":
-    ip = input("Enter IP: ")
+    ip = sys.argv[1]
     passW = getpass.getpass(prompt="Enter password: ", stream=None)
     main(ip, passW)
