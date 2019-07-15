@@ -17,9 +17,20 @@ from paramiko.client import SSHClient
 PORT = 22
 USERNAME = "rmccommon"
 
+def str2bool(v):
+    if isinstance(v, bool):
+       return v
+    if v.lower() in ('yes', 'true', 't', 'y', '1'):
+        return True
+    elif v.lower() in ('no', 'false', 'f', 'n', '0'):
+        return False
+    else:
+        raise argparse.ArgumentTypeError('Boolean value expected.'
+
 #adds arguement flags
 parser = argparse.ArgumentParser(description='Tool to help assist with auto ssh comands.')
-parser.add_argument('-s', help= 'Boolean flag to enable or disable super user elevation when using comands.')
+parser.add_argument('-s', help= 'Boolean flag to enable or disable super user elevation when using comands.'type=str2bool, nargs='?',
+                        const=True, default=False)
 parser.add_argument('-ip', help= 'String value of ip address to connect to.')
 args = parser.parse_args()
 
