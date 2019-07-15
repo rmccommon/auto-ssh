@@ -22,7 +22,9 @@ def is_connected(ip):
 #stores the output in a file
 def store_to_file(name, stdout):
     file = open("./"+name+".txt", "a")
-    file.writelines(stdout.readlines())
+    for line in stdout:
+        print(str(line))
+        file.write("%s\n" % str(line).strip("b'"))
     file.close()
 
 
@@ -55,7 +57,9 @@ def main(ip, passW):
             for line in commands:
                 stdin, stdout, stderr = ssh.exec_command(line)
                 #store the output in a file
-                store_to_file(name, stdout)
+                newout = list(map(lambda x : x.encode('utf-8').strip(), stdout.readlines()))
+
+                store_to_file(name, newout)
 
             #close the connection
             ssh.close()
