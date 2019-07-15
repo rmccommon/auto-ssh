@@ -19,8 +19,8 @@ USERNAME = "rmccommon"
 
 #adds arguement flags
 parser = argparse.ArgumentParser(description='Tool to help assist with auto ssh comands.')
-parser.add_arguement('-s', help= 'Boolean flag to enable or disable super user elevation when using comands.')
-parser.add_arguement('-ip', help= 'String value of ip address to connect to.')
+parser.add_argument('-s', help= 'Boolean flag to enable or disable super user elevation when using comands.')
+parser.add_argument('-ip', help= 'String value of ip address to connect to.')
 args = parser.parse_args()
 
 #checks if the symbot is under coverage
