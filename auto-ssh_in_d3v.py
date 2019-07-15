@@ -8,6 +8,7 @@ import paramiko
 import datetime
 import getpass
 import subprocess
+import time
 import sys
 from paramiko.client import SSHClient
 
@@ -28,6 +29,21 @@ def store_to_file(name, stdout):
         file.write("%s\n" % str(line).strip("b'"))
     file.close()
 
+#takes a text file of linux commands then runs them on the target machine
+def run_commands(commands, ssh, name):
+    for line in commands:
+        #execute the command from a line in the file
+        stdin, stdout, stderr = ssh.exec_command(line)
+        #convert each string to utf-8 or else an error will happen
+        newout = list(map(lambda x : x.encode('utf-8').strip(), stdout.readlines()))
+        #store the output in a file
+        store_to_file(name, newout)
+
+#promotes the user to superuser
+def promote_to_su(ssh, passW):
+    stdin, stdout, stderr = ssh.exec_command('su')
+    time.sleep(0.1)
+    stdin.write(passW + '\n')
 
 def main(ip, passW):
     done = False
@@ -36,7 +52,7 @@ def main(ip, passW):
     print("started at:" + str(time))
 
     #name for the output files
-    name = str(time.strftime("%Y%m%d%H%M%S")) +'_' + ip.replace(".","-")
+    name = str(time.strftime("%Y%m%d-%H-%M-%S")) +'_' + ip.replace(".","-")
 
     paramiko.util.log_to_file(name + ".log")
     ssh = SSHClient()
@@ -47,31 +63,16 @@ def main(ip, passW):
             #Get the time at connection for the elapsed time calculation
             new_time = datetime.datetime.now()
             print("connected at " + str(new_time))
-
             #connect and run the commands needed
             ssh.connect(ip, PORT, USERNAME, passW)
-
-            #elevate user to admin status
-            ssh.exec_command('su')
-            time.sleep(0.1)
-            stdin.write(passW + \n)
-
+            #elevate user to admin status if checked
+            promote_to_su(ssh, passW)
             #open the files with the commands in it
             commands = open("./commands.txt", "r")
-
             #run each command then put the output into a txt file
-            for line in commands:
-                stdin, stdout, stderr = ssh.exec_command(line)
-
-                #convert each string to utf-8 or else an error will happen
-                newout = list(map(lambda x : x.encode('utf-8').strip(), stdout.readlines()))
-
-                #store the output in a file
-                store_to_file(name, newout)
-
+            run_commands(commands, ssh, name)
             #close the connection
             ssh.close()
-
             done = True
             #Calculate how long it took to run the commands
             elapsed_time = datetime.datetime.now() - new_time
