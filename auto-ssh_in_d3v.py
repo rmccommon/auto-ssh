@@ -17,22 +17,12 @@ from paramiko.client import SSHClient
 PORT = 22
 USERNAME = "rmccommon"
 
-def str2bool(v):
-    if isinstance(v, bool):
-       return v
-    if v.lower() in ('yes', 'true', 't', 'y', '1'):
-        return True
-    elif v.lower() in ('no', 'false', 'f', 'n', '0'):
-        return False
-    else:
-        raise argparse.ArgumentTypeError('Boolean value expected.')
-
 #adds arguement flags
 parser = argparse.ArgumentParser(description='Tool to help assist with auto ssh comands.')
-parser.add_argument('-s', help= 'Boolean flag to enable or disable super user elevation when using comands.', type=str2bool, nargs='?',
-                        const=True, default=False)
-parser.add_argument('-ip', help= 'String value of ip address to connect to.')
+parser.add_argument('-s', help= 'Enable or disable super user elevation when using comands.', default=False, action='store_true')
+parser.add_argument('-ip', help= 'String value of ip address to connect to.', type=str)
 args = parser.parse_args()
+
 
 #checks if the symbot is under coverage
 def is_connected(ip):
@@ -84,7 +74,8 @@ def main(ip, passW):
             #connect and run the commands needed
             ssh.connect(ip, PORT, USERNAME, passW)
             #elevate user to admin status if checked
-            promote_to_su(ssh, passW)
+            if args.s:
+                promote_to_su(ssh, passW)
             #open the files with the commands in it
             commands = open("./commands.txt", "r")
             #run each command then put the output into a txt file
@@ -98,6 +89,6 @@ def main(ip, passW):
             break
 
 if __name__ == "__main__":
-    ip = sys.argv[1]
+    ip = args.ip
     passW = getpass.getpass(prompt="Enter password: ", stream=None)
     main(ip, passW)
