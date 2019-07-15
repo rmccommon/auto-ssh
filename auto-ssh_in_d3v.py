@@ -10,6 +10,7 @@ import getpass
 import subprocess
 import time
 import sys
+import os
 import argparse
 from paramiko.client import SSHClient
 
@@ -55,11 +56,16 @@ def promote_to_su(ssh, passW):
     stdin.write(passW + '\n')
 
 #transfers files from server to target ip via sftp
-def file_transfer():
+def file_transfer(ssh, passW):
     promote_to_su(ssh, passW)
+    #gets current directory on local machine
+    current_dir = os.path.dirname(os.path.realpath(__file__))
+    #opens a sftp client
     ftp_client=ssh.open_sftp()
+    #transfers the files
     for file in args.f:
-        ftp_client.put(‘’,remotefilepath’)
+        #change the second argument to change where the file will be put on the remote machine
+        ftp_client.put(current_dir+ '\\' + file,'/home/rmccommon/'+file)
     ftp_client.close()
 
 def main(ip, passW):
@@ -85,19 +91,13 @@ def main(ip, passW):
             try:
                 ssh.connect(ip, PORT, USERNAME, passW)
             #elevate user to admin status if checked
-<<<<<<< HEAD
                 if args.s:
                     print("promoted to su")
                     promote_to_su(ssh, passW)
-=======
-            if args.s:
-                print("promoted to su")
-                promote_to_su(ssh, passW)
 
-            if args.f:
-                print("attempting to transfer files: " + args.f)
-                file_transfer()
->>>>>>> c351454b1571e904920a46915de1cf9a58267564
+                if args.f:
+                    print("attempting to transfer files: " + str(args.f))
+                    file_transfer(ssh, passW)
             #open the files with the commands in it
                 commands = open("./commands.txt", "r")
             #run each command then put the output into a txt file
@@ -110,11 +110,11 @@ def main(ip, passW):
                 elapsed_time = datetime.datetime.now() - new_time
                 print("Done, Elapsed Time: " + str(elapsed_time.total_seconds()) + "seconds")
                 break
-            except AuthenticationException:
+            except paramiko.AuthenticationException:
                 print("Not Authorized, probably wrong password")
                 done = True
                 break
-            except SSHException, socket.error:
+            except paramiko.SSHException:
                 print("connection interupted, command probably failed")
 
 
