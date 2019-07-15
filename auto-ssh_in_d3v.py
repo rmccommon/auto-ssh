@@ -21,7 +21,7 @@ USERNAME = "rmccommon"
 parser = argparse.ArgumentParser(description='Tool to help assist with auto ssh comands.')
 parser.add_argument('-s', help= 'Enable or disable super user elevation when using comands.', default=False, action='store_true')
 parser.add_argument('-ip', help= 'String value of ip address to connect to.', type=str, required='True')
-parser.add_argument('-f', help= 'Add files for transfer TO ssh target ip.', nargs='+', required='False')
+parser.add_argument('-f', help= 'Add files for transfer TO ssh target ip.', nargs='+')
 args = parser.parse_args()
 
 
