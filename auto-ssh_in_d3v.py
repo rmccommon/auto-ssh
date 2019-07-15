@@ -25,11 +25,11 @@ def str2bool(v):
     elif v.lower() in ('no', 'false', 'f', 'n', '0'):
         return False
     else:
-        raise argparse.ArgumentTypeError('Boolean value expected.'
+        raise argparse.ArgumentTypeError('Boolean value expected.')
 
 #adds arguement flags
 parser = argparse.ArgumentParser(description='Tool to help assist with auto ssh comands.')
-parser.add_argument('-s', help= 'Boolean flag to enable or disable super user elevation when using comands.'type=str2bool, nargs='?',
+parser.add_argument('-s', help= 'Boolean flag to enable or disable super user elevation when using comands.', type=str2bool, nargs='?',
                         const=True, default=False)
 parser.add_argument('-ip', help= 'String value of ip address to connect to.')
 args = parser.parse_args()
