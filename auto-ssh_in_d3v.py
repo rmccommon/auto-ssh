@@ -50,6 +50,11 @@ def main(ip, passW):
             #connect and run the commands needed
             ssh.connect(ip, PORT, USERNAME, passW)
 
+            #elevate user to admin status
+            ssh.exec_command('su')
+            time.sleep(0.1)
+            stdin.write(passW + \n)
+
             #open the files with the commands in it
             commands = open("./commands.txt", "r")
 
