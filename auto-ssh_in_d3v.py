@@ -56,6 +56,7 @@ def promote_to_su(ssh, passW):
 
 def main(ip, passW):
     done = False
+    command_line_number = 0
 
     time = datetime.datetime.now()
     print("started at:" + str(time))
@@ -73,22 +74,31 @@ def main(ip, passW):
             new_time = datetime.datetime.now()
             print("connected at " + str(new_time))
             #connect and run the commands needed
-            ssh.connect(ip, PORT, USERNAME, passW)
+            try:
+                ssh.connect(ip, PORT, USERNAME, passW)
             #elevate user to admin status if checked
-            if args.s:
-                print("promoted to su")
-                promote_to_su(ssh, passW)
+                if args.s:
+                    print("promoted to su")
+                    promote_to_su(ssh, passW)
             #open the files with the commands in it
-            commands = open("./commands.txt", "r")
+                commands = open("./commands.txt", "r")
             #run each command then put the output into a txt file
-            run_commands(commands, ssh, name)
-            #close the connection
-            ssh.close()
-            done = True
+                run_commands(commands, ssh, name)
+            #close the connection and command file
+                commands.close()
+                ssh.close()
+                done = True
             #Calculate how long it took to run the commands
-            elapsed_time = datetime.datetime.now() - new_time
-            print("Done, Elapsed Time: " + str(elapsed_time.total_seconds()) + "seconds")
-            break
+                elapsed_time = datetime.datetime.now() - new_time
+                print("Done, Elapsed Time: " + str(elapsed_time.total_seconds()) + "seconds")
+                break
+            except AuthenticationException:
+                print("Not Authorized, probably wrong password")
+                done = True
+                break
+            except SSHException, socket.error:
+                print("connection interupted, command probably failed")
+
 
 if __name__ == "__main__":
     ip = args.ip
