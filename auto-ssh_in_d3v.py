@@ -11,8 +11,8 @@ import subprocess
 from paramiko.client import SSHClient
 
 
-PORT = 40022
-USERNAME = "tux"
+PORT = 22
+USERNAME = "rmccommon"
 
 #checks if the symbot is under coverage
 def is_connected(ip):
@@ -48,13 +48,14 @@ def main(ip, passW):
             #connect and run the commands needed
             ssh.connect(ip, PORT, USERNAME, passW)
 
-            #change the command in here to the command you want to run
-            for line in "comands.txt":
-                 
-                 stdin, stdout, stderr = ssh.exec_command(line)
+            #open the files with the commands in it
+            commands = open("./commands.txt", "r")
 
-            #store the output in a file
-            store_to_file(name, stdout)
+            #run each command then put the output into a txt file
+            for line in commands:
+                stdin, stdout, stderr = ssh.exec_command(line)
+                #store the output in a file
+                store_to_file(name, stdout)
 
             #close the connection
             ssh.close()
