@@ -75,6 +75,7 @@ def main(ip, passW):
             ssh.connect(ip, PORT, USERNAME, passW)
             #elevate user to admin status if checked
             if args.s:
+                print("promoted to su")
                 promote_to_su(ssh, passW)
             #open the files with the commands in it
             commands = open("./commands.txt", "r")
