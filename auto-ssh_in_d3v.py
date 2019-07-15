@@ -11,8 +11,8 @@ import subprocess
 from paramiko.client import SSHClient
 
 
-PORT = 22
-USERNAME = "rmccommon"
+PORT = 40022
+USERNAME = "tux"
 
 #checks if the symbot is under coverage
 def is_connected(ip):
