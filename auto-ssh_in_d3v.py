@@ -16,7 +16,7 @@ USERNAME = "tux"
 
 #checks if the symbot is under coverage
 def is_connected(ip):
-    command = ['ping', '-n', '1', ip]
+    command = ['ping', '-n', '1','-w','200', ip]
     return subprocess.call(command) == 0
 
 #stores the output in a file
