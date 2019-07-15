@@ -33,7 +33,7 @@ def main(ip, passW):
     print("started at:" + str(time))
 
     #name for the output files
-    name = str(time.strftime("%Y%m%d%H%M%S")) + ip.replace(".","-")
+    name = str(time.strftime("%Y%m%d%H%M%S")) +'_' + ip.replace(".","-")
 
     paramiko.util.log_to_file(name + ".log")
     ssh = SSHClient()
