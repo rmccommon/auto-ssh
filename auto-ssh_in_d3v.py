@@ -99,7 +99,8 @@ def main(ip, passW):
                     promote_to_su(ssh, passW)
 
                 if args.f:
-                    print("attempting to transfer files: " + str(args.f))
+                    if args.d:
+                        print("attempting to transfer files: " + str(args.f))
                     file_transfer(ssh, passW)
             #open the files with the commands in it
                 commands = open("./commands.txt", "r")
