@@ -24,6 +24,7 @@ parser = argparse.ArgumentParser(description='Tool to help assist with auto ssh 
 parser.add_argument('-s', help= 'Enable or disable super user elevation when using comands.', default=False, action='store_true')
 parser.add_argument('-ip', help= 'String value of ip address to connect to.', type=str, required='True')
 parser.add_argument('-f', help= 'Add files for transfer TO ssh target ip.', nargs='+')
+parser.add_argument('-d', help= "Debug mode, prints out what's being writen to file.", default=False, action='store_true')
 args = parser.parse_args()
 
 
@@ -36,7 +37,8 @@ def is_connected(ip):
 def store_to_file(name, stdout):
     file = open("./"+name+".txt", "a")
     for line in stdout:
-        print(str(line))
+        if args.d:
+            print(str(line))
         file.write("%s\n" % str(line).strip("b'"))
     file.close()
 
@@ -67,6 +69,7 @@ def file_transfer(ssh, passW):
     for file in args.f:
         #change the second argument to change where the file will be put on the remote machine
         ftp_client.put(current_dir+ '\\' + file, REMOTE_DIR+file)
+        print("Transfered file: " + file)
     ftp_client.close()
 
 def main(ip, passW):
