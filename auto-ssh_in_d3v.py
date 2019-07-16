@@ -17,6 +17,7 @@ from paramiko.client import SSHClient
 
 PORT = 22
 USERNAME = "rmccommon"
+REMOTE_DIR = "/home/"+USERNAME+"/"
 
 #adds arguement flags
 parser = argparse.ArgumentParser(description='Tool to help assist with auto ssh comands.')
@@ -65,7 +66,7 @@ def file_transfer(ssh, passW):
     #transfers the files
     for file in args.f:
         #change the second argument to change where the file will be put on the remote machine
-        ftp_client.put(current_dir+ '\\' + file,'/home/rmccommon/'+file)
+        ftp_client.put(current_dir+ '\\' + file, REMOTE_DIR+file)
     ftp_client.close()
 
 def main(ip, passW):
