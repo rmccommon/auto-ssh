@@ -15,8 +15,8 @@ import argparse
 from paramiko.client import SSHClient
 
 
-PORT = 22
-USERNAME = "liveuser"
+PORT = 40022
+USERNAME = "tux"
 REMOTE_DIR = "/home/"+USERNAME+"/"
 
 #adds arguement flags
