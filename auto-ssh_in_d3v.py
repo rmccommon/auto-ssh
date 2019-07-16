@@ -60,7 +60,6 @@ def promote_to_su(ssh, passW):
 
 #transfers files from server to target ip via sftp
 def file_transfer(ssh, passW):
-    promote_to_su(ssh, passW)
     #gets current directory on local machine
     current_dir = os.path.dirname(os.path.realpath(__file__))
     #opens a sftp client
