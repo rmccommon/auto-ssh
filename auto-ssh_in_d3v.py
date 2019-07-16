@@ -15,14 +15,15 @@ import argparse
 from paramiko.client import SSHClient
 
 
-PORT = 22
-USERNAME = "rmccommon"
+PORT = 40022
+USERNAME = "tux"
 
 #adds arguement flags
 parser = argparse.ArgumentParser(description='Tool to help assist with auto ssh comands.')
 parser.add_argument('-s', help= 'Enable or disable super user elevation when using comands.', default=False, action='store_true')
 parser.add_argument('-ip', help= 'String value of ip address to connect to.', type=str, required='True')
 parser.add_argument('-f', help= 'Add files for transfer TO ssh target ip.', nargs='+')
+parser.add_argument('-t', help='Scan for distinct tags and count the number of occurences of each from a sqlite3 database.', default=False, action='store_true')
 args = parser.parse_args()
 
 
@@ -68,6 +69,15 @@ def file_transfer(ssh, passW):
         ftp_client.put(current_dir+ '\\' + file,'/home/rmccommon/'+file)
     ftp_client.close()
 
+#scans for unique tags from sqlite3 database and counts findings
+def tag_finder(ssh):
+    stdin, stdout, stderr = ssh.exec_command('sqlite3')
+    time.sleep(0.1)
+    stdin.write('select distinct name, count(id) from datawarehouse group by name;' + '\n')
+    time.sleep(0.1)
+    stdin.write('.quit')
+
+
 def main(ip, passW):
     done = False
     command_line_number = 0
@@ -98,6 +108,9 @@ def main(ip, passW):
                 if args.f:
                     print("attempting to transfer files: " + str(args.f))
                     file_transfer(ssh, passW)
+                if args.t:
+                    print("attempting to scan and report tags...")
+                    tag_finder(ssh)
             #open the files with the commands in it
                 commands = open("./commands.txt", "r")
             #run each command then put the output into a txt file
