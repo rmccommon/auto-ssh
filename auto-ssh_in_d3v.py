@@ -25,7 +25,7 @@ parser.add_argument('-s', help= 'Enable or disable super user elevation when usi
 parser.add_argument('-ip', help= 'String value of ip address to connect to.', type=str, required='True')
 parser.add_argument('-f', help= 'Add files for transfer TO ssh target ip.', nargs='+')
 parser.add_argument('-d', help= "Debug mode, prints out what's being writen to file.", default=False, action='store_true')
-parser.add_argument('-t', help='Scan for distinct tags and count the number of occurences of each from a sqlite3 database.', default=False, action='store_true')
+parser.add_argument('-t', help='Scan for distinct tags and count the number of occurences for today in datawarehouse.', default=False, action='store_true')
 args = parser.parse_args()
 
 
@@ -46,12 +46,14 @@ def store_to_file(name, stdout):
 #takes a text file of linux commands then runs them on the target machine
 def run_commands(commands, ssh, name):
     for line in commands:
-        #execute the command from a line in the file
-        stdin, stdout, stderr = ssh.exec_command(line)
-        #convert each string to utf-8 or else an error will happen
-        newout = list(map(lambda x : x.encode('utf-8').strip(), stdout.readlines()))
-        #store the output in a file
-        store_to_file(name, newout)
+        #allows to comment out lines of commands
+        if line[0] != '#':
+            #execute the command from a line in the file
+            stdin, stdout, stderr = ssh.exec_command(line)
+            #convert each string to utf-8 or else an error will happen
+            newout = list(map(lambda x : x.encode('utf-8').strip(), stdout.readlines()))
+            #store the output in a file
+            store_to_file(name, newout)
 
 #promotes the user to superuser
 def promote_to_su(ssh, passW):
@@ -73,13 +75,16 @@ def file_transfer(ssh, passW):
     ftp_client.close()
 
 #scans for unique tags from sqlite3 database and counts findings
-def tag_finder(ssh):
-    stdin, stdout, stderr = ssh.exec_command('sqlite3')
-    time.sleep(0.1)
-    stdin.write('select distinct name, count(id) from datawarehouse group by name;' + '\n')
-    time.sleep(0.1)
-    print(stdout.readlines())
-    stdin.write('.quit')
+#command we found Dan using alot
+def tag_finder(ssh, passW, name):
+    promote_to_su(ssh, passW)
+    date = datetime.datetime.now()
+    stdin, stdout, stderr = ssh.exec_command('echo "select distinct name, count(id) from datawarehouse group by name;" | sqlite3 /DATA/persistent/db/' + date.strftime("%Y%m%d") + '.db')
+    if args.d:
+        print(stdout.readlines())
+    store_to_file(name, stdout)
+
+
 
 
 def main(ip, passW):
@@ -115,7 +120,7 @@ def main(ip, passW):
                     file_transfer(ssh, passW)
                 if args.t:
                     print("attempting to scan and report tags...")
-                    tag_finder(ssh)
+                    tag_finder(ssh, passW, name)
             #open the files with the commands in it
                 commands = open("./commands.txt", "r")
             #run each command then put the output into a txt file

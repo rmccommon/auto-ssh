@@ -1,2 +1,5 @@
-echo heeloo
-
+#localhost
+#/bin/systemctl status symbot.service
+#cat /DATA/persistent/last_sent
+#echo "select distinct name, count(id) from datawarehouse group by name;" | sqlite3 /DATA/persistent/db/20190716.db
+#rpm -qa | grep sym
