@@ -15,7 +15,7 @@ import argparse
 from paramiko.client import SSHClient
 
 
-PORT = 4002
+PORT = 40022
 USERNAME = "tux"
 REMOTE_DIR = "/home/"+USERNAME+"/"
 
