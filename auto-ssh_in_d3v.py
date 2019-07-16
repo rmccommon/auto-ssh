@@ -7,7 +7,7 @@
 import paramiko
 import datetime
 import getpass
-import subprocess
+from pythonping import ping
 import time
 import sys
 import os
@@ -15,8 +15,8 @@ import argparse
 from paramiko.client import SSHClient
 
 
-PORT = 40022
-USERNAME = "tux"
+PORT = 22
+USERNAME = "liveuser"
 REMOTE_DIR = "/home/"+USERNAME+"/"
 
 #adds arguement flags
@@ -31,8 +31,8 @@ args = parser.parse_args()
 
 #checks if the symbot is under coverage
 def is_connected(ip):
-    command = ['ping', '-n', '1','-w','200', ip]
-    return subprocess.call(command) == 0
+    return_lst = ping(ip, count=1, verbose=True, timeout=1)
+    return return_lst._responses[0].success
 
 #stores the output in a file
 def store_to_file(name, stdout):
@@ -47,7 +47,7 @@ def store_to_file(name, stdout):
 def run_commands(commands, ssh, name):
     for line in commands:
         #allows to comment out lines of commands
-        if line[0] != '#':
+        if line[0] != '#' or line[0] != '\n':
             #execute the command from a line in the file
             stdin, stdout, stderr = ssh.exec_command(line)
             #convert each string to utf-8 or else an error will happen
