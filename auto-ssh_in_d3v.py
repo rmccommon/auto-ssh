@@ -111,7 +111,8 @@ def main(ip, passW):
                 ssh.connect(ip, PORT, USERNAME, passW)
             #elevate user to admin status if checked
                 if args.s:
-                    print("promoted to su")
+                    if args.d:
+                        print("promoted to su")
                     promote_to_su(ssh, passW)
 
                 if args.f:
@@ -119,7 +120,8 @@ def main(ip, passW):
                         print("attempting to transfer files: " + str(args.f))
                     file_transfer(ssh, passW)
                 if args.t:
-                    print("attempting to scan and report tags...")
+                    if args.d:
+                        print("attempting to scan and report tags...")
                     tag_finder(ssh, passW, name)
             #open the files with the commands in it
                 commands = open("./commands.txt", "r")
