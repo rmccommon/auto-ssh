@@ -16,8 +16,8 @@ from paramiko.client import SSHClient
 from paramiko import Channel
 
 
-PORT = 22
-USERNAME = "rmccommon"
+PORT = 40022
+USERNAME = "tux"
 REMOTE_DIR = "/home/"+USERNAME+"/"
 
 #adds arguement flags
@@ -55,13 +55,14 @@ def run_commands(commands, ssh, name, passW):
                 session = trans.open_session()
                 session.set_combine_stderr(True)
                 session.get_pty()
-                session.exec_command("sudo bash -c \"" + line[1:] + "\"" )
+                session.exec_command("su -c \"" + line[1:] +"\""  )
                 #bash -c \"" + line[1:] + "\""
                 stdin = session.makefile('wb', -1)
                 stdout = session.makefile('rb', -1)
+                time.sleep(0.25)
                 stdin.write(passW + '\n')
                 stdin.flush()
-                newout = list(map(lambda x : str(x).replace("\\r", "").replace("\\n", "").replace('\\t', " "), stdout.readlines()[2:]))
+                newout = list(map(lambda x : str(x).replace("\\r", "").replace("\\n", "").replace('\\t', " "), stdout.readlines()[1:]))
 
             else:
                 #execute the command from a line in the file
