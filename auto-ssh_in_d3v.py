@@ -13,10 +13,11 @@ import sys
 import os
 import argparse
 from paramiko.client import SSHClient
+from paramiko import Channel
 
 
-PORT = 40022
-USERNAME = "tux"
+PORT = 22
+USERNAME = "rmccommon"
 REMOTE_DIR = "/home/"+USERNAME+"/"
 
 #adds arguement flags
@@ -44,18 +45,37 @@ def store_to_file(name, stdout):
     file.close()
 
 #takes a text file of linux commands then runs them on the target machine
-def run_commands(commands, ssh, name):
+def run_commands(commands, ssh, name, passW):
     for line in commands:
         #allows to comment out lines of commands
         if line[0] != '#' or line[0] != '\n':
-            #execute the command from a line in the file
-            stdin, stdout, stderr = ssh.exec_command(line)
+            #if a plus is at the front of a line it will be executed as superuser
+            if line[0] == '+':
+                trans = ssh.get_transport()
+                session = trans.open_session()
+                session.set_combine_stderr(True)
+                session.get_pty()
+                session.exec_command("sudo bash -c \"" + line[1:] + "\"" )
+                #bash -c \"" + line[1:] + "\""
+                stdin = session.makefile('wb', -1)
+                stdout = session.makefile('rb', -1)
+                stdin.write(passW + '\n')
+                stdin.flush()
+                newout = list(map(lambda x : str(x).replace("\\r", "").replace("\\n", "").replace('\\t', " "), stdout.readlines()[2:]))
+
+            else:
+                #execute the command from a line in the file
+                stdin, stdout, stderr = ssh.exec_command(line)
+                newout = list(map(lambda x : x.encode('utf-8').strip(), stdout.readlines()))
+
+
             #convert each string to utf-8 or else an error will happen
-            newout = list(map(lambda x : x.encode('utf-8').strip(), stdout.readlines()))
+
             #store the output in a file
             store_to_file(name, newout)
 
 #promotes the user to superuser
+#this does not work and will be removed
 def promote_to_su(ssh, passW):
     stdin, stdout, stderr = ssh.exec_command('su')
     time.sleep(0.1)
@@ -126,7 +146,7 @@ def main(ip, passW):
             #open the files with the commands in it
                 commands = open("./commands.txt", "r")
             #run each command then put the output into a txt file
-                run_commands(commands, ssh, name)
+                run_commands(commands, ssh, name, passW)
             #close the connection and command file
                 commands.close()
                 ssh.close()
