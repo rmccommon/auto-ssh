@@ -14,22 +14,27 @@ import os
 import argparse
 from paramiko.client import SSHClient
 from paramiko import Channel
+import multiprocessing
 
 
-PORT = 40022
-USERNAME = "tux"
+PORT = 22
+USERNAME = "liveuser"
 REMOTE_DIR = "/home/"+USERNAME+"/"
 
 #adds arguement flags
 parser = argparse.ArgumentParser(description='Tool to help assist with auto ssh comands.')
 parser.add_argument('-s', help= 'Enable or disable super user elevation when using comands.', default=False, action='store_true')
-parser.add_argument('-ip', help= 'String value of ip address to connect to.', type=str, required='True')
+parser.add_argument('-ip', help= 'String value of ip address to connect to.', type=str)
 parser.add_argument('-f', help= 'Add files for transfer TO ssh target ip.', nargs='+')
 parser.add_argument('-d', help= "Debug mode, prints out what's being writen to file.", default=False, action='store_true')
 parser.add_argument('-t', help='Scan for distinct tags and count the number of occurences for today in datawarehouse.', default=False, action='store_true')
-parser.add_argument('--iplist', help='Pass a list of ip addresses from a file.')
+parser.add_argument('--iplist', help='Pass a list of ip addresses from a file.[This is a boolean value]', default=False,action='store_true')
 args = parser.parse_args()
 
+if args.iplist and args.ip:
+        parser.error('Only -ip OR --iplist can be used')
+if args.ip != True and args.iplist == False :
+        parser.error('Must specify either -ip or use --iplist')
 
 #checks if the symbot is under coverage
 def is_connected(ip):
@@ -69,9 +74,6 @@ def run_commands(commands, ssh, name, passW):
                 #execute the command from a line in the file
                 stdin, stdout, stderr = ssh.exec_command(line)
                 newout = list(map(lambda x : x.encode('utf-8').strip(), stdout.readlines()))
-
-
-            #convert each string to utf-8 or else an error will happen
 
             #store the output in a file
             store_to_file(name, newout)
@@ -166,6 +168,16 @@ def main(ip, passW):
 
 
 if __name__ == "__main__":
-    ip = args.ip
-    passW = getpass.getpass(prompt="Enter password: ", stream=None)
-    main(ip, passW)
+    if args.iplist:
+        iplist = open("./iplist.txt", "r")
+        jobs = []
+        passW = getpass.getpass(prompt="Enter password: ", stream=None)
+        for line in iplist:
+            ip = line.rstrip()
+            p = multiprocessing.Process(target=main, args=(ip, passW))
+            jobs.append(p)
+            p.start()
+    else:
+        ip = args.ip
+        passW = getpass.getpass(prompt="Enter password: ", stream=None)
+        main(ip, passW)
