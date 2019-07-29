@@ -17,8 +17,8 @@ from paramiko import Channel
 import multiprocessing
 
 
-PORT = 40022
-USERNAME = "tux"
+PORT = 22
+USERNAME = "liveuser"
 REMOTE_DIR = "/home/"+USERNAME+"/"
 
 #adds arguement flags
@@ -29,6 +29,7 @@ parser.add_argument('-f', help= 'Add files for transfer TO ssh target ip.', narg
 parser.add_argument('-d', help= "Debug mode, prints out what's being writen to file.", default=False, action='store_true')
 parser.add_argument('-t', help='Scan for distinct tags and count the number of occurences for today in datawarehouse.', default=False, action='store_true')
 parser.add_argument('--iplist', help='Pass a list of ip addresses from a file.[This is a boolean value]', default=False,action='store_true')
+parser.add_argument('--output_dir', help='Set the output directory for logs and output txt documents.')
 args = parser.parse_args()
 
 if args.iplist and args.ip:
@@ -43,6 +44,8 @@ def is_connected(ip):
 
 #stores the output in a file
 def store_to_file(name, stdout):
+    if args.output_dir:
+        print('haha noice')
     file = open("./"+name+".txt", "a")
     for line in stdout:
         if args.d:
@@ -168,6 +171,7 @@ def main(ip, passW):
 
 
 if __name__ == "__main__":
+    multiprocessing.freeze_support()
     if args.iplist:
         iplist = open("./iplist.txt", "r")
         jobs = []
