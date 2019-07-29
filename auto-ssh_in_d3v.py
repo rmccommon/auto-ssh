@@ -27,6 +27,7 @@ parser.add_argument('-ip', help= 'String value of ip address to connect to.', ty
 parser.add_argument('-f', help= 'Add files for transfer TO ssh target ip.', nargs='+')
 parser.add_argument('-d', help= "Debug mode, prints out what's being writen to file.", default=False, action='store_true')
 parser.add_argument('-t', help='Scan for distinct tags and count the number of occurences for today in datawarehouse.', default=False, action='store_true')
+parser.add_argument('--iplist', help='Pass a list of ip addresses from a file.')
 args = parser.parse_args()
 
 
