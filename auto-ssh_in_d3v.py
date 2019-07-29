@@ -17,8 +17,8 @@ from paramiko import Channel
 import multiprocessing
 
 
-PORT = 22
-USERNAME = "liveuser"
+PORT = 40022
+USERNAME = "tux"
 REMOTE_DIR = "/home/"+USERNAME+"/"
 
 #adds arguement flags
