@@ -15,7 +15,7 @@ import argparse
 from paramiko.client import SSHClient
 from paramiko import Channel
 import multiprocessing
-
+from multiprocessing import Queue
 
 PORT = 22
 USERNAME = "liveuser"
@@ -30,12 +30,9 @@ parser.add_argument('-d', help= "Debug mode, prints out what's being writen to f
 parser.add_argument('-t', help='Scan for distinct tags and count the number of occurences for today in datawarehouse.', default=False, action='store_true')
 parser.add_argument('--iplist', help='Pass a list of ip addresses from a file.[This is a boolean value]', default=False,action='store_true')
 parser.add_argument('--output_dir', help='Set the output directory for logs and output txt documents.')
+parser.add_argument('--multiprocessing-fork', nargs='+')
 args = parser.parse_args()
 
-if args.iplist and args.ip:
-        parser.error('Only -ip OR --iplist can be used')
-if args.ip != True and args.iplist == False :
-        parser.error('Must specify either -ip or use --iplist')
 
 #checks if the symbot is under coverage
 def is_connected(ip):
@@ -111,13 +108,24 @@ def tag_finder(ssh, passW, name):
         print(stdout.readlines())
     store_to_file(name, stdout)
 
-
+def multiprocessor():
+    iplist = open("./iplist.txt", "r")
+    jobs = []
+    passW = getpass.getpass(prompt="Enter password: ", stream=None)
+    for line in iplist:
+        ip = line.rstrip()
+        p = multiprocessing.Process(target=main, args=(ip, passW))
+        jobs.append(p)
+        p.start()
+    for j in jobs:
+        p.join()
 
 
 def main(ip, passW):
     done = False
     command_line_number = 0
-
+    multiprocessing.connection.recv()
+    print(args)
     time = datetime.datetime.now()
     print("started at:" + str(time))
 
@@ -172,15 +180,9 @@ def main(ip, passW):
 
 if __name__ == "__main__":
     multiprocessing.freeze_support()
+    args = parser.parse_args()
     if args.iplist:
-        iplist = open("./iplist.txt", "r")
-        jobs = []
-        passW = getpass.getpass(prompt="Enter password: ", stream=None)
-        for line in iplist:
-            ip = line.rstrip()
-            p = multiprocessing.Process(target=main, args=(ip, passW))
-            jobs.append(p)
-            p.start()
+        multiprocessor()
     else:
         ip = args.ip
         passW = getpass.getpass(prompt="Enter password: ", stream=None)
